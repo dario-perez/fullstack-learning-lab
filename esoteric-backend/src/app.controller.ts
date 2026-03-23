@@ -38,16 +38,16 @@ export class AppController {
     return this.appService.createService(data);
   }
 
-  @Delete('services/:name')
-  removeService(@Param('name') name: string): string {
-    return this.appService.deleteService(name);
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateData: Partial<TarotService>, // Usamos Partial temporalmente
+  ) {
+    return this.appService.updateService(+id, updateData);
   }
 
-  @Patch('services/:name')
-  editService(
-    @Param('name') name: string,
-    @Body() data: Partial<TarotService>,
-  ): string {
-    return this.appService.updateService(name, data);
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.appService.remove(+id);
   }
 }

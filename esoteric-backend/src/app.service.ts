@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 export class TarotService {
+  id: number;
   name: string;
   price: number;
   category: string;
@@ -10,9 +11,9 @@ export class TarotService {
 export class AppService {
   // Simulated database
   private services: TarotService[] = [
-    { name: 'Lectura General', price: 10000, category: 'Lectura' },
-    { name: 'Limpieza Energetica', price: 50000, category: 'Limpieza' },
-    { name: 'Endulzamiento', price: 80000, category: 'Lectura' },
+    { id: 1, name: 'Lectura General', price: 10000, category: 'Lectura' },
+    { id: 2, name: 'Limpieza Energetica', price: 50000, category: 'Limpieza' },
+    { id: 3, name: 'Endulzamiento', price: 80000, category: 'Lectura' },
   ];
 
   getHello(): string {
@@ -52,33 +53,31 @@ export class AppService {
     return `Servicio '${newService.name}' creado con éxito.`;
   }
 
-  deleteService(name: string): string {
-    const initialLength = this.services.length;
+  remove(id: number) {
+    const index = this.services.findIndex((s) => s.id === id);
 
-    this.services = this.services.filter(
-      (s) => s.name.toLowerCase() !== name.toLowerCase(),
-    );
-
-    if (this.services.length < initialLength) {
-      return `Servicio '${name}' eliminado con éxito.`;
-    } else {
-      return `No se encontró ningún servicio con el nombre ${name}`;
+    if (index === -1) {
+      throw new NotFoundException(
+        `No se encontró el servicio con ID ${id} para borrar 💨`,
+      );
     }
+
+    this.services.splice(index, 1);
+    return { deleted: true };
   }
 
-  updateService(name: string, updatedData: Partial<TarotService>): string {
-    const serviceIndex = this.services.findIndex(
-      (s) => s.name.toLowerCase() === name.toLowerCase(),
-    );
+  updateService(id: number, updatedData: Partial<TarotService>): string {
+    const serviceIndex = this.services.findIndex((s) => s.id === id);
 
     if (serviceIndex !== -1) {
       this.services[serviceIndex] = {
         ...this.services[serviceIndex],
         ...updatedData,
+        id: this.services[serviceIndex].id, // Protegemos el ID original
       };
-      return `Servicio ${name} actualizado con éxito.`;
+      return `Servicio con ID ${id} actualizado con éxito. ✅`;
     }
 
-    return `No se encontró el servicio '${name}' para actualizar.`;
+    return `No se encontró el servicio con ID ${id} para actualizar. ❌`;
   }
 }
